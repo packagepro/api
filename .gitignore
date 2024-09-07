@@ -1,0 +1,6 @@
+# Build Directory
+/target
+
+# Common IDE Directories
+/.idea
+/.vscode
