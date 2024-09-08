@@ -11,6 +11,8 @@ services:
     env_file:
         # Ensure that the variables in .env match the same variables in devcontainer.json
         - .env
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOSTNAME}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable"
 
     volumes:
       - ../..:/workspaces:cached
