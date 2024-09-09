@@ -1,8 +1,8 @@
 -- migrate:up
 CREATE TABLE users
 (
-    username      varchar(256) PRIMARY KEY,
-    email         varchar(256) UNIQUE NOT NULL,
+    username      varchar(255) PRIMARY KEY,
+    email         varchar(255) UNIQUE NOT NULL,
     is_super_user boolean DEFAULT false,
     CONSTRAINT well_formatted_username CHECK (username ~* '^[a-z0-9-]+$'),
     CONSTRAINT well_formatted_email CHECK (email ~*
@@ -13,22 +13,22 @@ CREATE TABLE users
 CREATE TYPE organization_role AS ENUM ('owner', 'admin', 'contributor', 'reader', 'no-access');
 CREATE TABLE users_organizations
 (
-    username          varchar(256)      NOT NULL REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
-    organization_name varchar(256)      NOT NULL REFERENCES organizations ON DELETE CASCADE ON UPDATE CASCADE,
+    username          varchar(255)      NOT NULL REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
+    organization_name varchar(255)      NOT NULL REFERENCES organizations ON DELETE CASCADE ON UPDATE CASCADE,
     role              organization_role NOT NULL,
-    CONSTRAINT username_organization PRIMARY KEY (username, organization_name)
+    CONSTRAINT users_organizations_pkey PRIMARY KEY (username, organization_name)
 );
 
-CREATE INDEX idx_organization_name ON users_organizations (organization_name);
+CREATE INDEX idx__users_organizations__organization_name ON users_organizations (organization_name);
 
 -- Set up methods for password authentication
 CREATE TYPE basic_auth_method AS ENUM ('environment', 'basic');
 CREATE TABLE user_basic_auth_methods
 (
     -- NOTE: Primary Key is intentional here (enforces only one basic auth method per user)
-    username varchar(256) PRIMARY KEY REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
+    username varchar(255) PRIMARY KEY REFERENCES users ON DELETE CASCADE ON UPDATE CASCADE,
     method   basic_auth_method NOT NULL,
-    value    varchar(256)
+    value    varchar(255)
 );
 
 -- Insert the superuser
