@@ -1,13 +1,12 @@
 -- migrate:up
-CREATE EXTENSION "pgcrypto";
 CREATE TABLE organizations
 (
-    id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    name_slug    varchar(256) NOT NULL UNIQUE,
+    name_slug    varchar(256) PRIMARY KEY,
     display_name varchar(256),
-    CONSTRAINT well_formatted_name_slug CHECK (name_slug ~* '/^[a-z0-9-]+$/')
+    CONSTRAINT well_formatted_name_slug CHECK (name_slug ~* '^[a-z0-9-]+$')
 );
+
+CREATE INDEX idx_display_name ON organizations (display_name);
 
 -- migrate:down
 DROP TABLE IF EXISTS organizations;
-DROP EXTENSION "pgcrypto";
