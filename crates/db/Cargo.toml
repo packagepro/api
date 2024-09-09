@@ -5,3 +5,14 @@ edition = "2021"
 
 [dependencies]
 cornucopia_async = "0.6"
+deadpool-postgres = "0.12"
+futures = "0.3"
+postgres-types = { version = "0.2", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["full", "macros", "rt-multi-thread"] }
+tokio-postgres = { version = "0.7.11", features = ["with-uuid-1"] }
+uuid = { version = "1.10.0", features = ["serde"] }
+
+[build-dependencies]
+cornucopia = "0.9.0"
+postgres = "0.19.8"

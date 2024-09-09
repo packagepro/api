@@ -4,5 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.7.5"
-tokio = "1.40.0"
+axum = { version = "0.7", default-features = false, features = ["json", "http1", "tokio"] }
+tokio = { version = "1", default-features = false, features = ["macros", "fs", "rt-multi-thread"] }
+db = { path = "../db" }
+uuid = "1.10.0"

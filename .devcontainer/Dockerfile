@@ -6,5 +6,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
    && apt-get -y install clang lld postgresql-client \
    && apt-get autoremove -y && apt-get clean -y
 
+# Install DB Mate for managing migrations
 RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && \
     chmod +x /usr/local/bin/dbmate
+
+# Install Cornucopia for handing SQL -> Rust Code Generation
+RUN cargo install cornucopia
