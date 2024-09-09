@@ -1,12 +1,20 @@
 mod v1;
 
-use axum::Router;
+use crate::config::Config;
+use axum::{Extension, Router};
+use std::net::SocketAddr;
 use std::str::FromStr;
 
-pub async fn serve() {
-    let app = Router::new();
+pub async fn serve(config: Config) {
+    let pool = db::create_pool(&config.database_url);
 
-    // TODO: Remove unwrap
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
+    let app = Router::new()
+        .layer(Extension(config))
+        .layer(Extension(pool));
+
+    let bind_address = SocketAddr::from(([0, 0, 0, 0], 8080));
+    let listener = tokio::net::TcpListener::bind(bind_address)
+        .await
+        .expect("bind was unsuccessful");
     axum::serve(listener, app).await.unwrap();
 }
