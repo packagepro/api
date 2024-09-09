@@ -8,7 +8,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # Install DB Mate for managing migrations
 RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && \
-    chmod +x /usr/local/bin/dbmate
-
-# Install Cornucopia for handing SQL -> Rust Code Generation
-RUN cargo install cornucopia
+    chmod +x /usr/local/bin/dbmate \
