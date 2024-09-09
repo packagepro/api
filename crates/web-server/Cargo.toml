@@ -8,3 +8,7 @@ axum = { version = "0.7", default-features = false, features = ["json", "http1",
 tokio = { version = "1", default-features = false, features = ["macros", "fs", "rt-multi-thread"] }
 db = { path = "../db" }
 uuid = "1.10.0"
+
+[target.x86_64-unknown-linux-gnu]
+linker = "/usr/bin/clang"
+rustflags = ["-C", "link-arg=--ld-path=/usr/bin/mold"]
