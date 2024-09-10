@@ -20,7 +20,7 @@ CREATE TABLE users_groups
     organization_name varchar(255) NOT NULL,
     group_name_slug   varchar(255) NOT NULL,
     role              group_role   NOT NULL,
-    FOREIGN KEY (organization_name, group_name_slug) REFERENCES groups (organization_name, group_name_slug),
+    FOREIGN KEY (organization_name, group_name_slug) REFERENCES groups (organization_name, group_name_slug) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT users_groups_pkey PRIMARY KEY (username, organization_name, group_name_slug)
 );
 

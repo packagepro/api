@@ -121,6 +121,8 @@ CREATE TABLE public.repositories (
     organization_name character varying(255) NOT NULL,
     repository_name_slug character varying(255) NOT NULL,
     type public.repository_type NOT NULL,
+    description character varying(255),
+    scm_repository_url character varying(255),
     CONSTRAINT well_formatted_name_slug CHECK (((repository_name_slug)::text ~* '^[a-z0-9-]+$'::text))
 );
 
@@ -146,6 +148,17 @@ CREATE TABLE public.repositories_users_permissions (
     organization_name character varying(255) NOT NULL,
     repository_name_slug character varying(255) NOT NULL,
     role public.repository_role NOT NULL
+);
+
+
+--
+-- Name: repository_labels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.repository_labels (
+    organization_name character varying(255) NOT NULL,
+    repository_name_slug character varying(255) NOT NULL,
+    label character varying(255) NOT NULL
 );
 
 
@@ -243,6 +256,14 @@ ALTER TABLE ONLY public.repositories
 
 ALTER TABLE ONLY public.repositories_users_permissions
     ADD CONSTRAINT repositories_users_permissions_pkey PRIMARY KEY (username, organization_name, repository_name_slug);
+
+
+--
+-- Name: repository_labels repository_labels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.repository_labels
+    ADD CONSTRAINT repository_labels_pkey PRIMARY KEY (organization_name, repository_name_slug, label);
 
 
 --
@@ -355,7 +376,7 @@ ALTER TABLE ONLY public.groups
 --
 
 ALTER TABLE ONLY public.repositories_groups_permissions
-    ADD CONSTRAINT repositories_groups_permissio_organization_name_group_name_fkey FOREIGN KEY (organization_name, group_name_slug) REFERENCES public.groups(organization_name, group_name_slug);
+    ADD CONSTRAINT repositories_groups_permissio_organization_name_group_name_fkey FOREIGN KEY (organization_name, group_name_slug) REFERENCES public.groups(organization_name, group_name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -363,7 +384,7 @@ ALTER TABLE ONLY public.repositories_groups_permissions
 --
 
 ALTER TABLE ONLY public.repositories_groups_permissions
-    ADD CONSTRAINT repositories_groups_permissio_organization_name_repository_fkey FOREIGN KEY (organization_name, repository_name_slug) REFERENCES public.repositories(organization_name, repository_name_slug);
+    ADD CONSTRAINT repositories_groups_permissio_organization_name_repository_fkey FOREIGN KEY (organization_name, repository_name_slug) REFERENCES public.repositories(organization_name, repository_name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -387,7 +408,7 @@ ALTER TABLE ONLY public.repositories
 --
 
 ALTER TABLE ONLY public.repositories_users_permissions
-    ADD CONSTRAINT repositories_users_permission_organization_name_repository_fkey FOREIGN KEY (organization_name, repository_name_slug) REFERENCES public.repositories(organization_name, repository_name_slug);
+    ADD CONSTRAINT repositories_users_permission_organization_name_repository_fkey FOREIGN KEY (organization_name, repository_name_slug) REFERENCES public.repositories(organization_name, repository_name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -407,6 +428,22 @@ ALTER TABLE ONLY public.repositories_users_permissions
 
 
 --
+-- Name: repository_labels repository_labels_organization_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.repository_labels
+    ADD CONSTRAINT repository_labels_organization_name_fkey FOREIGN KEY (organization_name) REFERENCES public.organizations(name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: repository_labels repository_labels_organization_name_repository_name_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.repository_labels
+    ADD CONSTRAINT repository_labels_organization_name_repository_name_slug_fkey FOREIGN KEY (organization_name, repository_name_slug) REFERENCES public.repositories(organization_name, repository_name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: user_basic_auth_methods user_basic_auth_methods_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -419,7 +456,7 @@ ALTER TABLE ONLY public.user_basic_auth_methods
 --
 
 ALTER TABLE ONLY public.users_groups
-    ADD CONSTRAINT users_groups_organization_name_group_name_slug_fkey FOREIGN KEY (organization_name, group_name_slug) REFERENCES public.groups(organization_name, group_name_slug);
+    ADD CONSTRAINT users_groups_organization_name_group_name_slug_fkey FOREIGN KEY (organization_name, group_name_slug) REFERENCES public.groups(organization_name, group_name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
