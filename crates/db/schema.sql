@@ -31,6 +31,31 @@ COMMENT ON EXTENSION fuzzystrmatch IS 'determine similarities and distance betwe
 
 
 --
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- Name: artifact_storage_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.artifact_storage_type AS ENUM (
+    'file-system',
+    's3',
+    'azure-blob-storage'
+);
+
+
+--
 -- Name: basic_auth_method; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -88,6 +113,54 @@ CREATE TYPE public.repository_type AS ENUM (
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: artifact_licenses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.artifact_licenses (
+    organization_name character varying(255) NOT NULL,
+    repository_name_slug character varying(255) NOT NULL,
+    version_name character varying(255) NOT NULL,
+    spdx_identifier character varying(255) NOT NULL,
+    spdx_full_name character varying(255) NOT NULL
+);
+
+
+--
+-- Name: artifact_storage_configuration; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.artifact_storage_configuration (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    organization_name character varying(255) NOT NULL,
+    type public.artifact_storage_type NOT NULL,
+    configuration json NOT NULL,
+    notes text
+);
+
+
+--
+-- Name: artifacts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.artifacts (
+    organization_name character varying(255) NOT NULL,
+    repository_name_slug character varying(255) NOT NULL,
+    version_name character varying(255) NOT NULL,
+    storage_configuration uuid NOT NULL,
+    storage_location text NOT NULL,
+    author character varying(255) NOT NULL,
+    uncompressed_byte_count bigint NOT NULL,
+    compressed_byte_count bigint NOT NULL,
+    hash_sha1 character varying(255) NOT NULL,
+    hash_sha256 character varying(255) NOT NULL,
+    hash_sha512 character varying(255) NOT NULL,
+    hash_md5 character varying(255) NOT NULL,
+    hash_blake2b_256 character varying(255) NOT NULL,
+    published_at date DEFAULT now() NOT NULL
+);
+
 
 --
 -- Name: groups; Type: TABLE; Schema: public; Owner: -
@@ -216,6 +289,30 @@ CREATE TABLE public.users_organizations (
     organization_name character varying(255) NOT NULL,
     role public.organization_role NOT NULL
 );
+
+
+--
+-- Name: artifact_licenses artifact_licenses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifact_licenses
+    ADD CONSTRAINT artifact_licenses_pkey PRIMARY KEY (organization_name, repository_name_slug, version_name, spdx_identifier);
+
+
+--
+-- Name: artifact_storage_configuration artifact_storage_configuration_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifact_storage_configuration
+    ADD CONSTRAINT artifact_storage_configuration_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: artifacts artifacts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifacts
+    ADD CONSTRAINT artifacts_pkey PRIMARY KEY (organization_name, repository_name_slug, version_name);
 
 
 --
@@ -364,6 +461,62 @@ CREATE INDEX idx__users_organizations__organization_name ON public.users_organiz
 
 
 --
+-- Name: artifact_licenses artifact_licenses_organization_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifact_licenses
+    ADD CONSTRAINT artifact_licenses_organization_name_fkey FOREIGN KEY (organization_name) REFERENCES public.organizations(name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: artifact_licenses artifact_licenses_organization_name_repository_name_slug_v_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifact_licenses
+    ADD CONSTRAINT artifact_licenses_organization_name_repository_name_slug_v_fkey FOREIGN KEY (organization_name, repository_name_slug, version_name) REFERENCES public.artifacts(organization_name, repository_name_slug, version_name);
+
+
+--
+-- Name: artifact_storage_configuration artifact_storage_configuration_organization_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifact_storage_configuration
+    ADD CONSTRAINT artifact_storage_configuration_organization_name_fkey FOREIGN KEY (organization_name) REFERENCES public.organizations(name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: artifacts artifacts_author_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifacts
+    ADD CONSTRAINT artifacts_author_fkey FOREIGN KEY (author) REFERENCES public.users(username) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: artifacts artifacts_organization_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifacts
+    ADD CONSTRAINT artifacts_organization_name_fkey FOREIGN KEY (organization_name) REFERENCES public.organizations(name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: artifacts artifacts_organization_name_repository_name_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifacts
+    ADD CONSTRAINT artifacts_organization_name_repository_name_slug_fkey FOREIGN KEY (organization_name, repository_name_slug) REFERENCES public.repositories(organization_name, repository_name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: artifacts artifacts_storage_configuration_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artifacts
+    ADD CONSTRAINT artifacts_storage_configuration_fkey FOREIGN KEY (storage_configuration) REFERENCES public.artifact_storage_configuration(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: groups groups_organization_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -497,4 +650,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240908182139'),
     ('20240909015359'),
     ('20240909025555'),
-    ('20240909230054');
+    ('20240909230054'),
+    ('20240910015829');
