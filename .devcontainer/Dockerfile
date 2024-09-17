@@ -8,6 +8,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # Install DB Mate for managing migrations
 RUN curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && \
-    chmod +x /usr/local/bin/dbmate \
+    chmod +x /usr/local/bin/dbmate
 
+USER vscode
 RUN cargo install cargo-watch --locked
