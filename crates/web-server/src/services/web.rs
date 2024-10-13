@@ -6,8 +6,8 @@ use crate::repositories::base::PackageProRepository;
 use crate::services::base::PackageProService;
 use crate::utils::pagination::{PaginatedResult, PaginatedSearchInput};
 use crate::utils::slug::Slug;
-use std::future::Future;
 
+#[derive(Clone, Debug)]
 pub struct WebService<R>
 where
     R: PackageProRepository,
@@ -15,43 +15,46 @@ where
     repo: R,
 }
 
+impl<R> WebService<R>
+where
+    R: PackageProRepository,
+{
+    pub fn new(repo: R) -> Self {
+        Self { repo }
+    }
+}
+
 impl<R> PackageProService for WebService<R>
 where
     R: PackageProRepository,
 {
-    fn get_organization(
-        &self,
-        name: &Slug,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    async fn get_organization(&self, name: &Slug) -> Result<Organization, PackageProError> {
         todo!()
     }
 
-    fn list_organizations(
+    async fn list_organizations(
         &self,
         params: &PaginatedSearchInput,
-    ) -> impl Future<Output = Result<PaginatedResult<Organization>, PackageProError>> + Send {
+    ) -> Result<PaginatedResult<Organization>, PackageProError> {
         todo!()
     }
 
-    fn create_organization(
+    async fn create_organization(
         &self,
         req: &CreateOrganizationRequest,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    ) -> Result<Organization, PackageProError> {
         todo!()
     }
 
-    fn update_organization(
+    async fn update_organization(
         &self,
         name: &Slug,
         req: &UpdateOrganizationRequest,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    ) -> Result<Organization, PackageProError> {
         todo!()
     }
 
-    fn delete_organization(
-        &self,
-        name: &Slug,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    async fn delete_organization(&self, name: &Slug) -> Result<Organization, PackageProError> {
         todo!()
     }
 }

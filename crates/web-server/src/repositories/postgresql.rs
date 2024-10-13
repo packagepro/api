@@ -6,53 +6,53 @@ use crate::repositories::base::PackageProRepository;
 use crate::utils::pagination::PaginatedSearchInput;
 use crate::utils::slug::Slug;
 use db::Pool;
-use std::future::Future;
 
+#[derive(Clone, Debug)]
 pub struct PostgresRepository {
     db: Pool,
 }
 
+impl PostgresRepository {
+    pub fn new(db: Pool) -> Self {
+        Self { db }
+    }
+}
+
 impl PackageProRepository for PostgresRepository {
-    fn get_organization(
-        &self,
-        name: &Slug,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    async fn get_organization(&self, name: &Slug) -> Result<Organization, PackageProError> {
         todo!()
     }
 
-    fn list_organizations(
+    async fn list_organizations(
         &self,
         params: &PaginatedSearchInput,
-    ) -> impl Future<Output = Result<Vec<Organization>, PackageProError>> + Send {
+    ) -> Result<Vec<Organization>, PackageProError> {
         todo!()
     }
 
-    fn count_organizations(
+    async fn count_organizations(
         &self,
         params: &PaginatedSearchInput,
-    ) -> impl Future<Output = Result<u64, PackageProError>> + Send {
+    ) -> Result<u64, PackageProError> {
         todo!()
     }
 
-    fn create_organization(
+    async fn create_organization(
         &self,
         req: &CreateOrganizationRequest,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    ) -> Result<Organization, PackageProError> {
         todo!()
     }
 
-    fn update_organization(
+    async fn update_organization(
         &self,
         name: &Slug,
         req: &UpdateOrganizationRequest,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    ) -> Result<Organization, PackageProError> {
         todo!()
     }
 
-    fn delete_organization(
-        &self,
-        name: &Slug,
-    ) -> impl Future<Output = Result<Organization, PackageProError>> + Send {
+    async fn delete_organization(&self, name: &Slug) -> Result<Organization, PackageProError> {
         todo!()
     }
 }

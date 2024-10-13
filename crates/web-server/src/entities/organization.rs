@@ -48,6 +48,6 @@ pub struct CreateOrganizationRequest {
 
 #[derive(Clone, Debug)]
 pub struct UpdateOrganizationRequest {
-    name: Some(Slug),
-    display_name: Some(String),
+    name: Option<Slug>,
+    display_name: Option<String>,
 }

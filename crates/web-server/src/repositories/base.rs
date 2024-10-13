@@ -6,7 +6,7 @@ use crate::utils::pagination::PaginatedSearchInput;
 use crate::utils::slug::Slug;
 use std::future::Future;
 
-pub trait PackageProRepository: Send + Sync + 'static {
+pub trait PackageProRepository: Clone + Send + Sync + 'static {
     /// Gets an organization based on the name.
     fn get_organization(
         &self,

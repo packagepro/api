@@ -10,6 +10,7 @@ db = { path = "../db" }
 uuid = "1.10.0"
 argon2 = "0.5.3"
 chrono = "0.4.38"
+anyhow = "1.0"
 thiserror = "1.0.64"
 
 [target.x86_64-unknown-linux-gnu]

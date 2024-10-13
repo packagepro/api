@@ -18,7 +18,7 @@ impl TryFrom<String> for Slug {
             _ => false,
         });
 
-        if (all_chars_valid && value.len() > 0) {
+        if all_chars_valid && value.len() > 0 {
             Ok(Self(value))
         } else {
             Err(PackageProError::InvalidSlug(value))
