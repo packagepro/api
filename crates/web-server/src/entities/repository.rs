@@ -1,6 +1,7 @@
 use crate::entities::group::Group;
 use crate::entities::organization::Organization;
 use crate::entities::user::User;
+use crate::utils::slug::Slug;
 
 #[derive(Clone, Debug)]
 pub enum RepositoryType {
@@ -9,7 +10,7 @@ pub enum RepositoryType {
 
 #[derive(Clone, Debug)]
 pub struct Repository {
-    name: String,
+    name: Slug,
     repository_type: RepositoryType,
     description: String,
     scm_repository_url: String,

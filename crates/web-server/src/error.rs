@@ -1,4 +1,7 @@
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum PackageProError {}
+pub enum PackageProError {
+    #[error("Invalid slug {}.")]
+    InvalidSlug(String),
+}

@@ -1,8 +1,9 @@
 use crate::entities::user::User;
+use crate::utils::slug::Slug;
 
 #[derive(Clone, Debug)]
 pub struct Organization {
-    name: String,
+    name: Slug,
     display_name: String,
 }
 
@@ -41,17 +42,12 @@ pub struct OrganizationUsersAgg {
 
 #[derive(Clone, Debug)]
 pub struct CreateOrganizationRequest {
-    name: String,
+    name: Slug,
     display_name: String,
 }
 
 #[derive(Clone, Debug)]
 pub struct UpdateOrganizationRequest {
-    name: String,
-    display_name: String,
-}
-
-#[derive(Clone, Debug)]
-pub struct DeleteOrganizationRequest {
-    name: String,
+    name: Some(Slug),
+    display_name: Some(String),
 }

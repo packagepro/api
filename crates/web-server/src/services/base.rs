@@ -2,11 +2,11 @@ use crate::entities::organization::{
     CreateOrganizationRequest, Organization, UpdateOrganizationRequest,
 };
 use crate::error::PackageProError;
-use crate::utils::pagination::PaginatedSearchInput;
+use crate::utils::pagination::{PaginatedResult, PaginatedSearchInput};
 use crate::utils::slug::Slug;
 use std::future::Future;
 
-pub trait PackageProRepository: Send + Sync + 'static {
+pub trait PackageProService: Send + Sync + 'static {
     /// Gets an organization based on the name.
     fn get_organization(
         &self,
@@ -17,13 +17,7 @@ pub trait PackageProRepository: Send + Sync + 'static {
     fn list_organizations(
         &self,
         params: &PaginatedSearchInput,
-    ) -> impl Future<Output = Result<Vec<Organization>, PackageProError>> + Send;
-
-    /// Gets the total number of organizations for the specified parameters.
-    fn count_organizations(
-        &self,
-        params: &PaginatedSearchInput,
-    ) -> impl Future<Output = Result<u64, PackageProError>> + Send;
+    ) -> impl Future<Output = Result<PaginatedResult<Organization>, PackageProError>> + Send;
 
     /// Creates an organization
     fn create_organization(

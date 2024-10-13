@@ -1,9 +1,10 @@
 use crate::entities::organization::{Organization, OrganizationRole};
 use crate::entities::user::User;
+use crate::utils::slug::Slug;
 
 #[derive(Clone, Debug)]
 pub struct Group {
-    name: String,
+    name: Slug,
     display_name: String,
 }
 

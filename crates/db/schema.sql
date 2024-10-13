@@ -265,7 +265,7 @@ CREATE TABLE public.schema_migrations (
 
 CREATE TABLE public.users (
     username character varying(255) NOT NULL,
-    email character varying(255) NOT NULL,
+    email character varying(254) NOT NULL,
     password_hash character varying(256) NOT NULL,
     is_super_user boolean DEFAULT false NOT NULL,
     created_at date DEFAULT now() NOT NULL,

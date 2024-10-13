@@ -2,7 +2,7 @@
 CREATE TABLE users
 (
     username      varchar(255) PRIMARY KEY,
-    email         varchar(255) UNIQUE NOT NULL,
+    email         varchar(254) UNIQUE NOT NULL,
     password_hash varchar(256)        NOT NULL,
     is_super_user boolean             NOT NULL DEFAULT false,
     created_at    date                NOT NULL DEFAULT now(),
