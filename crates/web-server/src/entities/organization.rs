@@ -38,3 +38,20 @@ pub struct OrganizationUsersAgg {
     organization: Organization,
     users: Vec<OrganizationRoleUserAgg>,
 }
+
+#[derive(Clone, Debug)]
+pub struct CreateOrganizationRequest {
+    name: String,
+    display_name: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct UpdateOrganizationRequest {
+    name: String,
+    display_name: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct DeleteOrganizationRequest {
+    name: String,
+}
