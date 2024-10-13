@@ -1,5 +1,5 @@
 pub mod config;
-mod entities;
+pub mod entities;
 pub mod error;
 pub mod http;
 pub mod repositories;
