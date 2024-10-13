@@ -56,16 +56,6 @@ CREATE TYPE public.artifact_storage_type AS ENUM (
 
 
 --
--- Name: basic_auth_method; Type: TYPE; Schema: public; Owner: -
---
-
-CREATE TYPE public.basic_auth_method AS ENUM (
-    'environment',
-    'basic'
-);
-
-
---
 -- Name: group_role; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -108,6 +98,20 @@ CREATE TYPE public.repository_role AS ENUM (
 CREATE TYPE public.repository_type AS ENUM (
     'raw'
 );
+
+
+--
+-- Name: package_pro_update_modtime(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.package_pro_update_modtime() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$;
 
 
 SET default_tablespace = '';
@@ -153,11 +157,11 @@ CREATE TABLE public.artifacts (
     author character varying(255) NOT NULL,
     uncompressed_byte_count bigint NOT NULL,
     compressed_byte_count bigint NOT NULL,
-    hash_sha1 character varying(255) NOT NULL,
-    hash_sha256 character varying(255) NOT NULL,
-    hash_sha512 character varying(255) NOT NULL,
-    hash_md5 character varying(255) NOT NULL,
-    hash_blake2b_256 character varying(255) NOT NULL,
+    digest_sha1 character varying(255) NOT NULL,
+    digest_sha256 character varying(255) NOT NULL,
+    digest_sha512 character varying(255) NOT NULL,
+    digest_md5 character varying(255) NOT NULL,
+    digest_blake2b_256 character varying(255) NOT NULL,
     published_at date DEFAULT now() NOT NULL
 );
 
@@ -171,6 +175,8 @@ CREATE TABLE public.groups (
     group_name_slug character varying(255) NOT NULL,
     group_display_name character varying(255),
     role public.organization_role NOT NULL,
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL,
     CONSTRAINT well_formatted_name_slug CHECK (((group_name_slug)::text ~* '^[a-z0-9-]+$'::text))
 );
 
@@ -182,6 +188,8 @@ CREATE TABLE public.groups (
 CREATE TABLE public.organizations (
     name_slug character varying(255) NOT NULL,
     display_name character varying(255),
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL,
     CONSTRAINT well_formatted_name_slug CHECK (((name_slug)::text ~* '^[a-z0-9-]+$'::text))
 );
 
@@ -196,6 +204,8 @@ CREATE TABLE public.repositories (
     type public.repository_type NOT NULL,
     description character varying(255),
     scm_repository_url character varying(255),
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL,
     CONSTRAINT well_formatted_name_slug CHECK (((repository_name_slug)::text ~* '^[a-z0-9-]+$'::text))
 );
 
@@ -208,7 +218,9 @@ CREATE TABLE public.repositories_groups_permissions (
     organization_name character varying(255) NOT NULL,
     group_name_slug character varying(255) NOT NULL,
     repository_name_slug character varying(255) NOT NULL,
-    role public.repository_role NOT NULL
+    role public.repository_role NOT NULL,
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL
 );
 
 
@@ -220,7 +232,9 @@ CREATE TABLE public.repositories_users_permissions (
     username character varying(255) NOT NULL,
     organization_name character varying(255) NOT NULL,
     repository_name_slug character varying(255) NOT NULL,
-    role public.repository_role NOT NULL
+    role public.repository_role NOT NULL,
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL
 );
 
 
@@ -231,7 +245,8 @@ CREATE TABLE public.repositories_users_permissions (
 CREATE TABLE public.repository_labels (
     organization_name character varying(255) NOT NULL,
     repository_name_slug character varying(255) NOT NULL,
-    label character varying(255) NOT NULL
+    label character varying(255) NOT NULL,
+    created_at date DEFAULT now() NOT NULL
 );
 
 
@@ -245,24 +260,16 @@ CREATE TABLE public.schema_migrations (
 
 
 --
--- Name: user_basic_auth_methods; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.user_basic_auth_methods (
-    username character varying(255) NOT NULL,
-    method public.basic_auth_method NOT NULL,
-    value character varying(255)
-);
-
-
---
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.users (
     username character varying(255) NOT NULL,
     email character varying(255) NOT NULL,
-    is_super_user boolean DEFAULT false,
+    password_hash character varying(256) NOT NULL,
+    is_super_user boolean DEFAULT false NOT NULL,
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL,
     CONSTRAINT well_formatted_email CHECK (((email)::text ~* '^[a-zA-Z0-9.!#$%&''''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$'::text)),
     CONSTRAINT well_formatted_username CHECK (((username)::text ~* '^[a-z0-9-]+$'::text))
 );
@@ -276,7 +283,9 @@ CREATE TABLE public.users_groups (
     username character varying(255) NOT NULL,
     organization_name character varying(255) NOT NULL,
     group_name_slug character varying(255) NOT NULL,
-    role public.group_role NOT NULL
+    role public.group_role NOT NULL,
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL
 );
 
 
@@ -287,7 +296,9 @@ CREATE TABLE public.users_groups (
 CREATE TABLE public.users_organizations (
     username character varying(255) NOT NULL,
     organization_name character varying(255) NOT NULL,
-    role public.organization_role NOT NULL
+    role public.organization_role NOT NULL,
+    created_at date DEFAULT now() NOT NULL,
+    updated_at date DEFAULT now() NOT NULL
 );
 
 
@@ -372,14 +383,6 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
--- Name: user_basic_auth_methods user_basic_auth_methods_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_basic_auth_methods
-    ADD CONSTRAINT user_basic_auth_methods_pkey PRIMARY KEY (username);
-
-
---
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -458,6 +461,62 @@ CREATE INDEX idx__users_groups__username__organization_name ON public.users_grou
 --
 
 CREATE INDEX idx__users_organizations__organization_name ON public.users_organizations USING btree (organization_name);
+
+
+--
+-- Name: groups groups_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER groups_update_modtime BEFORE UPDATE ON public.groups FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
+
+
+--
+-- Name: organizations organizations_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER organizations_update_modtime BEFORE UPDATE ON public.organizations FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
+
+
+--
+-- Name: repositories_groups_permissions repositories_groups_permissions_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER repositories_groups_permissions_update_modtime BEFORE UPDATE ON public.repositories_groups_permissions FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
+
+
+--
+-- Name: repositories repositories_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER repositories_update_modtime BEFORE UPDATE ON public.repositories FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
+
+
+--
+-- Name: repositories_users_permissions repositories_users_permissions_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER repositories_users_permissions_update_modtime BEFORE UPDATE ON public.repositories_users_permissions FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
+
+
+--
+-- Name: users_groups users_groups_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER users_groups_update_modtime BEFORE UPDATE ON public.users_groups FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
+
+
+--
+-- Name: users_organizations users_organizations_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER users_organizations_update_modtime BEFORE UPDATE ON public.users_organizations FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
+
+
+--
+-- Name: users users_update_modtime; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER users_update_modtime BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.package_pro_update_modtime();
 
 
 --
@@ -594,14 +653,6 @@ ALTER TABLE ONLY public.repository_labels
 
 ALTER TABLE ONLY public.repository_labels
     ADD CONSTRAINT repository_labels_organization_name_repository_name_slug_fkey FOREIGN KEY (organization_name, repository_name_slug) REFERENCES public.repositories(organization_name, repository_name_slug) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: user_basic_auth_methods user_basic_auth_methods_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_basic_auth_methods
-    ADD CONSTRAINT user_basic_auth_methods_username_fkey FOREIGN KEY (username) REFERENCES public.users(username) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

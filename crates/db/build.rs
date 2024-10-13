@@ -34,21 +34,4 @@ fn cornucopia() -> Result<(), cornucopia::Error> {
     )?;
 
     Ok(())
-
-    // Call cornucopia. Use whatever CLI command you need.
-    // let output = std::process::Command::new("cornucopia")
-    //     .arg("-q")
-    //     .arg(queries_path)
-    //     .arg("--serialize")
-    //     .arg("-d")
-    //     .arg(&file_path)
-    //     .arg("live")
-    //     .arg(db_url)
-    //     .output()
-    //     .unwrap();
-    //
-    // // If Cornucopia couldn't run properly, try to display the error.
-    // if !output.status.success() {
-    //     panic!("{}", &std::str::from_utf8(&output.stderr).unwrap());
-    // }
 }

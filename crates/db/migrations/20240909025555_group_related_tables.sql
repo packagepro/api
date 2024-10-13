@@ -6,11 +6,20 @@ CREATE TABLE groups
     group_display_name varchar(255),
     -- The organization-level permissions that this groups has
     role               organization_role NOT NULL,
+    created_at         date              NOT NULL DEFAULT now(),
+    updated_at         date              NOT NULL DEFAULT now(),
     CONSTRAINT groups_pkey PRIMARY KEY (organization_name, group_name_slug),
     CONSTRAINT well_formatted_name_slug CHECK (group_name_slug ~* '^[a-z0-9-]+$')
 );
 
+CREATE TRIGGER groups_update_modtime
+    BEFORE UPDATE
+    ON groups
+    FOR EACH ROW
+EXECUTE PROCEDURE package_pro_update_modtime();
+
 CREATE INDEX idx__groups__display_name ON groups (group_name_slug);
+
 
 -- Allow users to belong to groups
 CREATE TYPE group_role AS ENUM ('owner', 'member');
@@ -20,9 +29,17 @@ CREATE TABLE users_groups
     organization_name varchar(255) NOT NULL,
     group_name_slug   varchar(255) NOT NULL,
     role              group_role   NOT NULL,
+    created_at        date         NOT NULL DEFAULT now(),
+    updated_at        date         NOT NULL DEFAULT now(),
     FOREIGN KEY (organization_name, group_name_slug) REFERENCES groups (organization_name, group_name_slug) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT users_groups_pkey PRIMARY KEY (username, organization_name, group_name_slug)
 );
+
+CREATE TRIGGER users_groups_update_modtime
+    BEFORE UPDATE
+    ON users_groups
+    FOR EACH ROW
+EXECUTE PROCEDURE package_pro_update_modtime();
 
 CREATE INDEX idx__users_groups__username__organization_name ON users_groups (username, organization_name);
 CREATE INDEX idx__users_groups__username__group_name_slug ON users_groups (username, group_name_slug);
